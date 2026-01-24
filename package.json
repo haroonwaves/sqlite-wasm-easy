@@ -1,0 +1,73 @@
+{
+	"name": "sqlite-wasm-easy",
+	"version": "0.0.1",
+	"description": "A simple, zero-config wrapper around @sqlite.org/sqlite-wasm",
+	"type": "module",
+	"main": "./dist/index.js",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		},
+		"./worker": {
+			"import": "./dist/worker/sqliteWorker.js"
+		}
+	},
+	"files": [
+		"dist",
+		"src",
+		"README.md",
+		"LICENSE"
+	],
+	"scripts": {
+		"build": "tsc && vite build",
+		"dev": "vite",
+		"dev:examples": "npm run build && vite",
+		"format": "prettier --write \"src/**/*.ts\"",
+		"format:check": "prettier --check \"src/**/*.ts\"",
+		"lint": "eslint .",
+		"lint:fix": "eslint . --fix",
+		"spellcheck": "cspell \"**/*\"",
+		"typecheck": "tsc --noEmit",
+		"check": "npm run lint && npm run spellcheck && npm run typecheck && npm run format:check",
+		"prepublishOnly": "npm run build"
+	},
+	"keywords": [
+		"sqlite",
+		"wasm",
+		"database",
+		"sql",
+		"opfs",
+		"browser",
+		"indexeddb",
+		"web-worker"
+	],
+	"author": "",
+	"license": "MIT",
+	"peerDependencies": {
+		"@sqlite.org/sqlite-wasm": "^3.49.0"
+	},
+	"devDependencies": {
+		"@eslint/js": "^9.39.2",
+		"@sqlite.org/sqlite-wasm": "^3.49.1-build1",
+		"@types/node": "^25.0.10",
+		"cspell": "^9.6.0",
+		"eslint": "^9.39.2",
+		"eslint-config-prettier": "^10.1.8",
+		"globals": "^17.1.0",
+		"prettier": "^3.8.1",
+		"typescript": "^5.7.3",
+		"typescript-eslint": "^8.53.1",
+		"vite": "^6.1.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": ""
+	},
+	"bugs": {
+		"url": ""
+	},
+	"homepage": ""
+}

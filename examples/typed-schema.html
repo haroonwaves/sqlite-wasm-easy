@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sqlite-wasm-easy - TypeScript Schema Example</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+            line-height: 1.6;
+        }
+        h1 { color: #333; }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover { background: #0052a3; }
+        #output {
+            background: #fff;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 15px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>TypeScript Schema Example</h1>
+    <p>This example demonstrates type-safe database access with TypeScript schemas.</p>
+    
+    <div class="section">
+        <h2>Schema Definition</h2>
+        <pre><code>interface Schema {
+  users: { id: number; name: string; email: string };
+  posts: { id: number; userId: number; title: string; content: string };
+}</code></pre>
+    </div>
+    
+    <div class="section">
+        <h2>Actions</h2>
+        <button onclick="createSampleData()">1. Create Sample Data</button>
+        <button onclick="queryUsers()">2. Query Users</button>
+        <button onclick="queryPosts()">3. Query Posts</button>
+        <button onclick="queryJoin()">4. Query with JOIN</button>
+        <button onclick="transactionExample()">5. Transaction Example</button>
+    </div>
+    
+    <div id="output">Click buttons above to see results...</div>
+
+    <script type="module">
+        import { SQLiteWASM } from '../src/index.ts';
+        
+        // Define schema (in TypeScript, this would have type checking)
+        let db;
+        
+        async function init() {
+            // Create typed database
+            db = new SQLiteWASM({ filename: 'typed-example.db' });
+            await db.ready();
+            
+            // Create tables
+            await db.exec(`
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    email TEXT UNIQUE NOT NULL
+                )
+            `);
+            
+            await db.exec(`
+                CREATE TABLE IF NOT EXISTS posts (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    userId INTEGER NOT NULL,
+                    title TEXT NOT NULL,
+                    content TEXT NOT NULL,
+                    FOREIGN KEY (userId) REFERENCES users(id)
+                )
+            `);
+            
+            log('Database initialized with schema!');
+        }
+        
+        window.createSampleData = async function() {
+            try {
+                // Clear existing data
+                await db.exec('DELETE FROM posts');
+                await db.exec('DELETE FROM users');
+                
+                // Add users
+                await db.exec('INSERT INTO users (name, email) VALUES (?, ?)', 
+                    ['Alice Johnson', 'alice@example.com']);
+                await db.exec('INSERT INTO users (name, email) VALUES (?, ?)', 
+                    ['Bob Smith', 'bob@example.com']);
+                
+                // Add posts
+                await db.exec('INSERT INTO posts (userId, title, content) VALUES (?, ?, ?)', 
+                    [1, 'First Post', 'Hello World!']);
+                await db.exec('INSERT INTO posts (userId, title, content) VALUES (?, ?, ?)', 
+                    [1, 'Second Post', 'Another great post']);
+                await db.exec('INSERT INTO posts (userId, title, content) VALUES (?, ?, ?)', 
+                    [2, 'Bob\'s Post', 'My first blog post']);
+                
+                log('✓ Sample data created successfully');
+            } catch (error) {
+                log(`Error: ${error.message}`);
+            }
+        };
+        
+        window.queryUsers = async function() {
+            try {
+                // Type-safe table access
+                const usersTable = db.table('users');
+                const users = await usersTable.query('SELECT * FROM users');
+                
+                log('Users:', users);
+            } catch (error) {
+                log(`Error: ${error.message}`);
+            }
+        };
+        
+        window.queryPosts = async function() {
+            try {
+                const postsTable = db.table('posts');
+                const posts = await postsTable.query('SELECT * FROM posts');
+                
+                log('Posts:', posts);
+            } catch (error) {
+                log(`Error: ${error.message}`);
+            }
+        };
+        
+        window.queryJoin = async function() {
+            try {
+                const results = await db.query(`
+                    SELECT 
+                        users.name as author,
+                        posts.title,
+                        posts.content
+                    FROM posts
+                    JOIN users ON posts.userId = users.id
+                    ORDER BY posts.id
+                `);
+                
+                log('Posts with Authors:', results);
+            } catch (error) {
+                log(`Error: ${error.message}`);
+            }
+        };
+        
+        window.transactionExample = async function() {
+            try {
+                await db.transaction(async (tx) => {
+                    // Insert new user
+                    const result = await tx.run(
+                        'INSERT INTO users (name, email) VALUES (?, ?)',
+                        ['Charlie Brown', 'charlie@example.com']
+                    );
+                    
+                    const userId = result.lastInsertRowId;
+                    
+                    // Insert posts for new user
+                    await tx.exec(
+                        'INSERT INTO posts (userId, title, content) VALUES (?, ?, ?)',
+                        [userId, 'Charlie\'s First Post', 'Hello from Charlie!']
+                    );
+                    
+                    await tx.exec(
+                        'INSERT INTO posts (userId, title, content) VALUES (?, ?, ?)',
+                        [userId, 'Charlie\'s Second Post', 'Another post from Charlie']
+                    );
+                });
+                
+                log('✓ Transaction completed successfully');
+                
+                // Show results
+                const users = await db.query('SELECT * FROM users WHERE email = ?', 
+                    ['charlie@example.com']);
+                const posts = await db.query('SELECT * FROM posts WHERE userId = ?', 
+                    [users[0].id]);
+                
+                log('New User:', users);
+                log('New User\'s Posts:', posts);
+            } catch (error) {
+                log(`Transaction failed: ${error.message}`);
+            }
+        };
+        
+        function log(...args) {
+            const output = document.getElementById('output');
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : arg
+            ).join(' ');
+            output.textContent = message + '\n\n' + output.textContent;
+        }
+        
+        init();
+    </script>
+</body>
+</html>
