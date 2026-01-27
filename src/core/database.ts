@@ -74,18 +74,13 @@ export class SQLiteWASM<Schema = any> {
 
 		this.pendingRequests.delete(response.id);
 
-		if (response.status === 'error') {
-			pending.reject(new Error(response.error || 'Unknown error'));
-		} else {
-			pending.resolve(response.results);
-		}
+		if (response.status === 'error') pending.reject(new Error(response.error || 'Unknown error'));
+		else pending.resolve(response.results);
 	}
 
 	private sendMessage(message: Omit<WorkerMessage, 'id'>): Promise<any> {
 		return new Promise((resolve, reject) => {
-			if (!this.worker) {
-				return reject(new Error('Worker not initialized'));
-			}
+			if (!this.worker) return reject(new Error('Worker not initialized'));
 
 			const id = `msg_${++this.messageId}`;
 			this.pendingRequests.set(id, { resolve, reject });
@@ -128,8 +123,8 @@ export class SQLiteWASM<Schema = any> {
 			exec: async (sql: string, params?: any[]) => {
 				return this.sendMessage({ operation: 'exec', sql, params });
 			},
-			query: async <_T = any>(sql: string, params?: any[]) => {
-				return this.sendMessage({ operation: 'query', sql, params });
+			query: async <T = any>(sql: string, params?: any[]) => {
+				return this.sendMessage({ operation: 'query', sql, params }) as Promise<T[]>;
 			},
 			run: async (sql: string, params?: any[]) => {
 				return this.sendMessage({ operation: 'run', sql, params });
@@ -148,17 +143,19 @@ export class SQLiteWASM<Schema = any> {
 
 	/**
 	 * Get a typed table accessor (for type hints only)
+	 * Replaces '$' in the SQL with the table name
 	 */
-	table<K extends keyof Schema>(_name: K): TypedTable<Schema[K]> {
+	table<K extends keyof Schema>(tableName: K): TypedTable<Schema[K]> {
+		const name = String(tableName);
 		return {
 			query: async <R = Schema[K]>(sql: string, params?: any[]) => {
-				return this.query<R>(sql, params);
+				return this.query<R>(sql.replace(/\$/g, name), params);
 			},
 			exec: async (sql: string, params?: any[]) => {
-				return this.exec(sql, params);
+				return this.exec(sql.replace(/\$/g, name), params);
 			},
 			run: async (sql: string, params?: any[]) => {
-				return this.run(sql, params);
+				return this.run(sql.replace(/\$/g, name), params);
 			},
 		};
 	}

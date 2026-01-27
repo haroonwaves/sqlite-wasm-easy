@@ -1,26 +1,24 @@
-version: '0.2'
+version: "0.2"
 language: en
 allowCompoundWords: true
 useGitignore: true
-gitignoreRoot: '.' # Prevent searching for .gitignore files past root
-
+gitignoreRoot: .
 ignorePaths:
-  - '**/*.{png,jpg,jpeg,gif,svg,icns}'
-  - '**/*.min.*'
-
+  - "**/*.{png,jpg,jpeg,gif,svg,icns}"
+  - "**/*.min.*"
 words:
   - eslint
+  - haroonwaves
+  - Hwaci
+  - icns
+  - indexeddb
+  - myapp
   - opfs
   - sahpool
   - tsbuildinfo
   - tsconfig
   - tseslint
   - typecheck
-  - icns
-  - indexeddb
-  - myapp
-  - Hwaci
-
 dictionaries:
   - css
   - html

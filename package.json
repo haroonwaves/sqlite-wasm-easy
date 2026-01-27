@@ -1,5 +1,5 @@
 {
-	"name": "sqlite-wasm-easy",
+	"name": "@haroonwaves/sqlite-wasm-easy",
 	"version": "0.0.1",
 	"description": "A simple, zero-config wrapper around @sqlite.org/sqlite-wasm",
 	"type": "module",
@@ -42,9 +42,10 @@
 		"opfs",
 		"browser",
 		"indexeddb",
-		"web-worker"
+		"web-worker",
+		"sqlite-wasm"
 	],
-	"author": "",
+	"author": "haroonwaves",
 	"license": "MIT",
 	"peerDependencies": {
 		"@sqlite.org/sqlite-wasm": "^3.49.0"
@@ -64,10 +65,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": ""
+		"url": "https://github.com/haroonwaves/sqlite-wasm-easy"
 	},
-	"bugs": {
-		"url": ""
-	},
-	"homepage": ""
+	"homepage": "https://github.com/haroonwaves/sqlite-wasm-easy"
 }

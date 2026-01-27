@@ -1,21 +1,5 @@
 import type { WorkerMessage, WorkerResponse, SQLiteWASMConfig } from '../types/index';
 
-// Queue to handle operations in order to avoid race conditions
-const operationQueue: Array<() => Promise<void>> = [];
-let isProcessing = false;
-
-async function processQueue() {
-	if (isProcessing) return;
-	isProcessing = true;
-
-	while (operationQueue.length > 0) {
-		const operation = operationQueue.shift();
-		if (operation) await operation();
-	}
-
-	isProcessing = false;
-}
-
 let sqlite3InitModule: any = null;
 let sqlite3: any = null;
 let PoolUtil: any = null;
@@ -30,9 +14,10 @@ async function initDatabase(config: SQLiteWASMConfig) {
 
 	// Setup console filtering if enabled
 	if (config.logging?.filterSqlTrace) {
-		const originalLog = console.log;
+		const originalLog = console.log; // eslint-disable-line no-console
 		const originalError = console.error;
 
+		// eslint-disable-next-line no-console
 		console.log = (...args) => {
 			const message = args.join(' ');
 			if (!message.includes('SQL TRACE') && !message.includes('TRACE #')) {
@@ -50,6 +35,7 @@ async function initDatabase(config: SQLiteWASMConfig) {
 
 	// Initialize SQLite3 (use defaults for print/printErr since functions can't be sent via postMessage)
 	sqlite3 = await sqlite3InitModule.default({
+		// eslint-disable-next-line no-console
 		print: console.log,
 		printErr: console.error,
 	});
@@ -77,7 +63,6 @@ async function openDatabase(filename: string) {
 
 	const vfsType = currentConfig?.vfs?.type || 'opfs';
 
-	console.log('Using default database', vfsType);
 	if (vfsType === 'opfs-sahpool' && PoolUtil) {
 		db = new PoolUtil.OpfsSAHPoolDb({
 			filename,
@@ -262,13 +247,13 @@ async function handleDatabaseOperation(message: WorkerMessage): Promise<WorkerRe
 				throw new Error(`Unknown operation: ${operation}`);
 			}
 		}
-	} catch (error: any) {
-		return { id, status: 'error', error: error.message };
+	} catch (error: unknown) {
+		return { id, status: 'error', error: error instanceof Error ? error.message : 'Unknown error' };
 	}
 }
 
 // Worker message handler
-self.addEventListener('message', (event: MessageEvent<WorkerMessage>) => {
+self.addEventListener('message', async (event: MessageEvent<WorkerMessage>) => {
 	const message = event.data;
 
 	// Security: Check message origin
@@ -276,11 +261,6 @@ self.addEventListener('message', (event: MessageEvent<WorkerMessage>) => {
 		return self.postMessage({ id: message.id, status: 'error', error: 'Invalid message origin' });
 	}
 
-	// Queue the operation
-	operationQueue.push(async () => {
-		const response = await handleDatabaseOperation(message);
-		self.postMessage(response);
-	});
-
-	void processQueue();
+	const response = await handleDatabaseOperation(message);
+	self.postMessage(response);
 });
