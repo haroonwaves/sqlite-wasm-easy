@@ -1,11 +1,13 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import { fileURLToPath } from 'url';
+import dts from 'vite-plugin-dts';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 export default defineConfig({
 	root: '.', // Root directory for dev server
+	plugins: [dts({ rollupTypes: true })],
 	build: {
 		lib: {
 			entry: {
