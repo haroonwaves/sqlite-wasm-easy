@@ -41,7 +41,7 @@ export class SQLiteWASM<Schema = any> {
 	private async initialize(): Promise<void> {
 		// Create worker
 		const workerPath =
-			this.config.worker.path || new URL('../worker/sqliteWorker.js', import.meta.url).href;
+			this.config.worker.path || new URL('./worker/sqliteWorker.js', import.meta.url).href;
 		this.worker = new Worker(workerPath, { type: 'module' });
 
 		// Setup message handler
