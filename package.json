@@ -1,6 +1,6 @@
 {
 	"name": "@haroonwaves/sqlite-wasm-easy",
-	"version": "0.1.8",
+	"version": "0.1.9",
 	"description": "A simple, zero-config wrapper around @sqlite.org/sqlite-wasm",
 	"type": "module",
 	"main": "./dist/index.js",
