@@ -7,6 +7,7 @@ import type {
 	WorkerResponse,
 } from '../types/index';
 import { mergeConfig } from './defaults';
+import SqliteWorker from '../worker/sqliteWorker?worker&inline';
 
 /**
  * Main SQLiteWASM class - provides a simple interface to SQLite WASM
@@ -40,9 +41,7 @@ export class SQLiteWASM<Schema = any> {
 
 	private async initialize(): Promise<void> {
 		// Create worker
-		const workerPath =
-			this.config.worker.path || new URL('./worker/sqliteWorker.js', document.baseURI).href;
-		this.worker = new Worker(workerPath, { type: 'module' });
+		this.worker = new SqliteWorker();
 
 		// Setup message handler
 		this.worker.addEventListener('message', this.handleWorkerMessage.bind(this));

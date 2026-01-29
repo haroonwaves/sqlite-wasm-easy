@@ -123,6 +123,7 @@ export interface WorkerMessage {
 	config?: SQLiteWASMConfig;
 	filename?: string;
 	data?: Uint8Array;
+	baseUrl?: string; // Base URL for resolving module imports in worker
 }
 
 export interface WorkerResponse {

@@ -151,12 +151,13 @@ async function runSQL(
 		rowMode: 'array',
 	});
 
-	// Get last insert row ID and changes
+	// Get last insert row ID and changes - explicitly convert to primitives
+	// to ensure serializability via postMessage
+	const changesCount = Number(db.changes) || 0;
 	const lastInsertRowId =
-		db.changes > 0 ? Number(db.selectValue('SELECT last_insert_rowid()')) : undefined;
-	const changes = db.changes;
+		changesCount > 0 ? Number(db.selectValue('SELECT last_insert_rowid()')) : undefined;
 
-	return { lastInsertRowId, changes };
+	return { lastInsertRowId, changes: changesCount };
 }
 
 async function exportDatabase(): Promise<Uint8Array> {

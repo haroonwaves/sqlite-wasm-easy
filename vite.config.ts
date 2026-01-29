@@ -12,13 +12,14 @@ export default defineConfig({
 		lib: {
 			entry: {
 				index: resolve(__dirname, 'src/index.ts'),
-				'worker/sqliteWorker': resolve(__dirname, 'src/worker/sqliteWorker.ts'),
+				worker: resolve(__dirname, 'src/worker/sqliteWorker.ts'),
 			},
 			formats: ['es'],
 			fileName: (format, entryName) => `${entryName}.js`,
 		},
 		rollupOptions: {
-			external: ['@sqlite.org/sqlite-wasm'],
+			// Don't mark sqlite-wasm as external - bundle it into the worker
+			// so the inlined worker is self-contained and works offline
 			output: {
 				preserveModules: false,
 			},
@@ -41,5 +42,11 @@ export default defineConfig({
 	},
 	worker: {
 		format: 'es',
+		rollupOptions: {
+			output: {
+				// Force everything into a single chunk for the worker
+				inlineDynamicImports: true,
+			},
+		},
 	},
 });
