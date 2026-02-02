@@ -72,7 +72,15 @@ async function openDatabase(filename: string) {
 	} else if (vfsType === 'memdb') {
 		db = new sqlite3.oo1.DB(':memory:', 'c');
 	} else {
-		// Fallback to default database
+		// Check if OpfsDb is available (requires COOP/COEP headers)
+		if (typeof sqlite3.oo1.OpfsDb !== 'function') {
+			throw new Error(
+				'OPFS VFS is not available. This usually means your server is not configured with ' +
+					'the required COOP/COEP headers (Cross-Origin-Opener-Policy: same-origin, ' +
+					"Cross-Origin-Embedder-Policy: require-corp). Consider using 'opfs-sahpool' instead, " +
+					'which does not require these headers.'
+			);
+		}
 		db = new sqlite3.oo1.OpfsDb(filename, 'c');
 	}
 

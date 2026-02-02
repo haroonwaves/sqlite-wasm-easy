@@ -52,10 +52,9 @@ await db.ready();
 
 // 3. Use the table() API
 // The '$' symbol is automatically replaced by the table name ('users')
-const users = db.table('users');
 
 // Create Table
-await users.exec(`
+await db.table('users').exec(`
   CREATE TABLE IF NOT EXISTS $ (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
@@ -64,10 +63,12 @@ await users.exec(`
 `);
 
 // Insert (Fully typed params are not enforced yet, but return types are)
-await users.run('INSERT INTO $ (name, email) VALUES (?, ?)', ['Alice', 'alice@dev.com']);
+await db
+	.table('users')
+	.run('INSERT INTO $ (name, email) VALUES (?, ?)', ['Alice', 'alice@dev.com']);
 
 // Query (Returns User[])
-const allUsers = await users.query('SELECT * FROM $');
+const allUsers = await db.table('users').query('SELECT * FROM $');
 ```
 
 ## Configuration
@@ -119,23 +120,33 @@ Key interfaces for better TypeScript integration.
 
 ```typescript
 interface SQLiteWASMConfig {
-	filename: string;
+	filename: string; // Required: Database file name
 	vfs?: {
-		type?: 'opfs' | 'opfs-sahpool' | 'memdb';
+		type?: 'opfs' | 'opfs-sahpool' | 'memdb'; // Default: 'opfs'
+		poolConfig?: {
+			// Only used when type is 'opfs-sahpool'
+			initialCapacity?: number; // Default: 3
+			clearOnInit?: boolean; // Default: false
+			name?: string; // Default: 'sqlite-wasm-pool'
+		};
 	};
 	pragma?: {
-		journal_mode?: 'DELETE' | 'TRUNCATE' | 'PERSIST' | 'MEMORY' | 'WAL' | 'OFF';
-		synchronous?: 'OFF' | 'NORMAL' | 'FULL' | 'EXTRA';
-		temp_store?: 'DEFAULT' | 'FILE' | 'MEMORY';
-		foreign_keys?: 'ON' | 'OFF';
+		journal_mode?: 'DELETE' | 'TRUNCATE' | 'PERSIST' | 'MEMORY' | 'WAL' | 'OFF'; // Default: 'WAL'
+		synchronous?: 'OFF' | 'NORMAL' | 'FULL' | 'EXTRA'; // Default: 'NORMAL'
+		temp_store?: 'DEFAULT' | 'FILE' | 'MEMORY'; // Default: 'MEMORY'
+		foreign_keys?: 'ON' | 'OFF'; // Default: undefined (not set)
 	};
 	logging?: {
-		filterSqlTrace?: boolean;
-		print?: (message: string) => void;
-		printErr?: (message: string) => void;
+		filterSqlTrace?: boolean; // Default: true
+		print?: (message: string) => void; // Default: console.log
+		printErr?: (message: string) => void; // Default: console.error
 	};
 }
 ```
+
+> **Note:** The `opfs` VFS requires your server to set COOP/COEP headers
+> (`Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: require-corp`). If
+> these headers are not available, use `opfs-sahpool` instead, which works without them.
 
 ### `RunResult`
 
