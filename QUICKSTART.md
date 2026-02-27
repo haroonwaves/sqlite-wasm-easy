@@ -89,7 +89,7 @@ const users = await usersTable.query('SELECT * FROM users');
 const db = new SQLiteWASM({
   filename: 'myapp.db',
   vfs: {
-    type: 'opfs-sahpool',  // or 'opfs', 'memdb'
+    type: 'opfs-sahpool',  // or 'opfs', 'memory'
     poolConfig: {
       initialCapacity: 5,
       name: 'my-custom-pool'
@@ -155,7 +155,7 @@ await db.delete()                    // Delete database
   vfs?: {
     type?: 'opfs-sahpool'            // Default: 'opfs-sahpool'
          | 'opfs' 
-         | 'memdb';
+         | 'memory';
     poolConfig?: {
       initialCapacity?: number;      // Default: 3
       clearOnInit?: boolean;         // Default: false

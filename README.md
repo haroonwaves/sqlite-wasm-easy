@@ -122,7 +122,7 @@ Key interfaces for better TypeScript integration.
 interface SQLiteWASMConfig {
 	filename: string; // Required: Database file name
 	vfs?: {
-		type?: 'opfs' | 'opfs-sahpool' | 'memdb'; // Default: 'opfs'
+		type?: 'opfs' | 'opfs-sahpool' | 'memory'; // Default: 'opfs'
 		poolConfig?: {
 			// Only used when type is 'opfs-sahpool'
 			initialCapacity?: number; // Default: 3

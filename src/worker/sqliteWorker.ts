@@ -52,7 +52,7 @@ async function initDatabase(config: SQLiteWASMConfig) {
 	} else if (vfsType === 'opfs') {
 		// Direct OPFS VFS (if available)
 		PoolUtil = sqlite3.opfs || null;
-	} else if (vfsType === 'memdb') {
+	} else if (vfsType === 'memory') {
 		// In-memory database
 		PoolUtil = null;
 	}
@@ -69,7 +69,7 @@ async function openDatabase(filename: string) {
 			flags: 'create',
 			vfs: 'opfs-sahpool',
 		});
-	} else if (vfsType === 'memdb') {
+	} else if (vfsType === 'memory') {
 		db = new sqlite3.oo1.DB(':memory:', 'c');
 	} else {
 		// Check if OpfsDb is available (requires COOP/COEP headers)

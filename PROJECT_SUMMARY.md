@@ -55,7 +55,7 @@ All aspects are configurable with sensible defaults:
 interface SQLiteWASMConfig {
   filename: string;
   vfs?: {
-    type?: 'opfs-sahpool' | 'opfs' | 'memdb';
+    type?: 'opfs-sahpool' | 'opfs' | 'memory';
     poolConfig?: {
       initialCapacity?: number;     // Default: 3
       clearOnInit?: boolean;         // Default: false
@@ -184,13 +184,13 @@ await db.transaction(async (tx) => {
 | **Configuration** | Hardcoded values | Fully configurable |
 | **Table API** | Full ORM-like (insert, update, delete, etc.) | Type hints only (query, exec, run) |
 | **PRAGMA** | Hardcoded (MEMORY, NORMAL) | User configurable |
-| **VFS** | Hardcoded opfs-sahpool | User can choose (opfs-sahpool, opfs, memdb) |
+| **VFS** | Hardcoded opfs-sahpool | User can choose (opfs-sahpool, opfs, memory) |
 | **Pool Config** | Fixed (initialCapacity: 3) | Configurable |
 | **Console Filtering** | Always on | Optional (configurable) |
 
 ## What's Configurable (vs Hardcoded Before)
 
-✅ **VFS Method** - User chooses: opfs-sahpool, opfs, or memdb  
+✅ **VFS Method** - User chooses: opfs-sahpool, opfs, or memory  
 ✅ **Pool Settings** - initialCapacity, clearOnInit, name  
 ✅ **PRAGMA Settings** - journal_mode, synchronous, temp_store, cache_size, etc.  
 ✅ **Logging** - filterSqlTrace, custom print/printErr functions  
