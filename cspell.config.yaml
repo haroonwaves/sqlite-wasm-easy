@@ -1,12 +1,14 @@
-version: "0.2"
+version: '0.2'
 language: en
 allowCompoundWords: true
 useGitignore: true
 gitignoreRoot: .
 ignorePaths:
-  - "**/*.{png,jpg,jpeg,gif,svg,icns}"
-  - "**/*.min.*"
+  - '**/*.{png,jpg,jpeg,gif,svg,icns}'
+  - '**/*.min.*'
+  - 'pnpm-lock.yaml'
 words:
+  - COEP
   - eslint
   - haroonwaves
   - Hwaci
@@ -15,6 +17,7 @@ words:
   - myapp
   - opfs
   - sahpool
+  - serializability
   - tsbuildinfo
   - tsconfig
   - tseslint
