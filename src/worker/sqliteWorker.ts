@@ -55,6 +55,8 @@ async function initDatabase(config: SQLiteWASMConfig) {
 	} else if (vfsType === 'memory') {
 		// In-memory database
 		PoolUtil = null;
+	} else {
+		throw new Error(`Unsupported VFS type: ${vfsType}`);
 	}
 }
 
