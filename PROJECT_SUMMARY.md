@@ -2,11 +2,13 @@
 
 ## Overview
 
-**sqlite-wasm-easy** is a zero-configuration wrapper around `@sqlite.org/sqlite-wasm` that simplifies SQLite database usage in the browser.
+**sqlite-wasm-easy** is a zero-configuration wrapper around `@sqlite.org/sqlite-wasm` that
+simplifies SQLite database usage in the browser.
 
 ## ✅ What We Built
 
 ### Core Features
+
 1. **Zero Configuration** - Works out of the box with sensible defaults
 2. **Fully Configurable** - VFS type, PRAGMA settings, logging options
 3. **TypeScript First** - Complete type safety and IntelliSense
@@ -53,32 +55,32 @@ All aspects are configurable with sensible defaults:
 
 ```typescript
 interface SQLiteWASMConfig {
-  filename: string;
-  vfs?: {
-    type?: 'opfs-sahpool' | 'opfs' | 'memdb';
-    poolConfig?: {
-      initialCapacity?: number;     // Default: 3
-      clearOnInit?: boolean;         // Default: false
-      name?: string;                 // Default: 'sqlite-wasm-pool'
-    };
-  };
-  pragma?: {
-    journal_mode?: JournalMode;      // Default: 'WAL'
-    synchronous?: SynchronousMode;   // Default: 'NORMAL'
-    temp_store?: TempStoreMode;      // Default: 'MEMORY'
-    cache_size?: number;
-    page_size?: number;
-    foreign_keys?: 'ON' | 'OFF';
-    [key: string]: any;              // Any custom PRAGMA
-  };
-  worker?: {
-    path?: string;                   // Custom worker path
-  };
-  logging?: {
-    filterSqlTrace?: boolean;        // Default: true
-    print?: (msg: string) => void;
-    printErr?: (msg: string) => void;
-  };
+	filename: string;
+	vfs?: {
+		type?: 'opfs-sahpool' | 'opfs' | 'memory';
+		poolConfig?: {
+			initialCapacity?: number; // Default: 3
+			clearOnInit?: boolean; // Default: false
+			name?: string; // Default: 'sqlite-wasm-pool'
+		};
+	};
+	pragma?: {
+		journal_mode?: JournalMode; // Default: 'WAL'
+		synchronous?: SynchronousMode; // Default: 'NORMAL'
+		temp_store?: TempStoreMode; // Default: 'MEMORY'
+		cache_size?: number;
+		page_size?: number;
+		foreign_keys?: 'ON' | 'OFF';
+		[key: string]: any; // Any custom PRAGMA
+	};
+	worker?: {
+		path?: string; // Custom worker path
+	};
+	logging?: {
+		filterSqlTrace?: boolean; // Default: true
+		print?: (msg: string) => void;
+		printErr?: (msg: string) => void;
+	};
 }
 ```
 
@@ -88,16 +90,16 @@ Only high-level methods (no CRUD):
 
 ```typescript
 class SQLiteWASM<Schema = any> {
-  ready(): Promise<void>
-  exec(sql: string, params?: any[]): Promise<void>
-  query<T>(sql: string, params?: any[]): Promise<T[]>
-  run(sql: string, params?: any[]): Promise<RunResult>
-  transaction(callback: (tx: Transaction) => Promise<void>): Promise<void>
-  table<K extends keyof Schema>(name: K): TypedTable<Schema[K]>
-  export(): Promise<Uint8Array>
-  import(filename: string, data: Uint8Array): Promise<void>
-  close(): Promise<void>
-  delete(): Promise<void>
+	ready(): Promise<void>;
+	exec(sql: string, params?: any[]): Promise<void>;
+	query<T>(sql: string, params?: any[]): Promise<T[]>;
+	run(sql: string, params?: any[]): Promise<RunResult>;
+	transaction(callback: (tx: Transaction) => Promise<void>): Promise<void>;
+	table<K extends keyof Schema>(name: K): TypedTable<Schema[K]>;
+	export(): Promise<Uint8Array>;
+	import(filename: string, data: Uint8Array): Promise<void>;
+	close(): Promise<void>;
+	delete(): Promise<void>;
 }
 ```
 
@@ -105,9 +107,9 @@ class SQLiteWASM<Schema = any> {
 
 ```typescript
 interface TypedTable<T> {
-  query<R = T>(sql: string, params?: any[]): Promise<R[]>
-  exec(sql: string, params?: any[]): Promise<void>
-  run(sql: string, params?: any[]): Promise<RunResult>
+	query<R = T>(sql: string, params?: any[]): Promise<R[]>;
+	exec(sql: string, params?: any[]): Promise<void>;
+	run(sql: string, params?: any[]): Promise<RunResult>;
 }
 ```
 
@@ -131,23 +133,23 @@ const users = await db.query('SELECT * FROM users');
 
 ```typescript
 const db = new SQLiteWASM({
-  filename: 'myapp.db',
-  vfs: {
-    type: 'opfs-sahpool',
-    poolConfig: {
-      initialCapacity: 5,
-      clearOnInit: false,
-      name: 'custom-pool'
-    }
-  },
-  pragma: {
-    journal_mode: 'WAL',
-    synchronous: 'FULL',
-    foreign_keys: 'ON'
-  },
-  logging: {
-    filterSqlTrace: true
-  }
+	filename: 'myapp.db',
+	vfs: {
+		type: 'opfs-sahpool',
+		poolConfig: {
+			initialCapacity: 5,
+			clearOnInit: false,
+			name: 'custom-pool',
+		},
+	},
+	pragma: {
+		journal_mode: 'WAL',
+		synchronous: 'FULL',
+		foreign_keys: 'ON',
+	},
+	logging: {
+		filterSqlTrace: true,
+	},
 });
 ```
 
@@ -155,8 +157,8 @@ const db = new SQLiteWASM({
 
 ```typescript
 interface Schema {
-  users: { id: number; name: string; email: string };
-  posts: { id: number; userId: number; title: string };
+	users: { id: number; name: string; email: string };
+	posts: { id: number; userId: number; title: string };
 }
 
 const db = new SQLiteWASM<Schema>({ filename: 'app.db' });
@@ -171,54 +173,57 @@ const users = await usersTable.query('SELECT * FROM users');
 
 ```typescript
 await db.transaction(async (tx) => {
-  await tx.exec('INSERT INTO users (name) VALUES (?)', ['Charlie']);
-  await tx.exec('UPDATE users SET active = 1 WHERE id = ?', [1]);
+	await tx.exec('INSERT INTO users (name) VALUES (?)', ['Charlie']);
+	await tx.exec('UPDATE users SET active = 1 WHERE id = ?', [1]);
 });
 ```
 
 ## Key Differences from Your Current Implementation
 
-| Aspect | Current (Supersorted) | sqlite-wasm-easy |
-|--------|----------------------|------------------|
-| **Scope** | App-specific | General-purpose package |
-| **Configuration** | Hardcoded values | Fully configurable |
-| **Table API** | Full ORM-like (insert, update, delete, etc.) | Type hints only (query, exec, run) |
-| **PRAGMA** | Hardcoded (MEMORY, NORMAL) | User configurable |
-| **VFS** | Hardcoded opfs-sahpool | User can choose (opfs-sahpool, opfs, memdb) |
-| **Pool Config** | Fixed (initialCapacity: 3) | Configurable |
-| **Console Filtering** | Always on | Optional (configurable) |
+| Aspect                | Current (Supersorted)                        | sqlite-wasm-easy                             |
+| --------------------- | -------------------------------------------- | -------------------------------------------- |
+| **Scope**             | App-specific                                 | General-purpose package                      |
+| **Configuration**     | Hardcoded values                             | Fully configurable                           |
+| **Table API**         | Full ORM-like (insert, update, delete, etc.) | Type hints only (query, exec, run)           |
+| **PRAGMA**            | Hardcoded (MEMORY, NORMAL)                   | User configurable                            |
+| **VFS**               | Hardcoded opfs-sahpool                       | User can choose (opfs-sahpool, opfs, memory) |
+| **Pool Config**       | Fixed (initialCapacity: 3)                   | Configurable                                 |
+| **Console Filtering** | Always on                                    | Optional (configurable)                      |
 
 ## What's Configurable (vs Hardcoded Before)
 
-✅ **VFS Method** - User chooses: opfs-sahpool, opfs, or memdb  
-✅ **Pool Settings** - initialCapacity, clearOnInit, name  
+✅ **VFS Method** - User chooses: opfs-sahpool, opfs, or memory ✅ **Pool Settings** -
+initialCapacity, clearOnInit, name  
 ✅ **PRAGMA Settings** - journal_mode, synchronous, temp_store, cache_size, etc.  
 ✅ **Logging** - filterSqlTrace, custom print/printErr functions  
-✅ **Worker Path** - Custom worker location  
+✅ **Worker Path** - Custom worker location
 
 ## Build & Distribution
 
 ### Build Output
+
 - Main bundle: `dist/index.js` (14.5 KB, gzipped: 5.5 KB)
 - Worker bundle: `dist/worker/sqliteWorker.js` (5 KB, gzipped: 1.6 KB)
 - TypeScript declarations: `dist/index.d.ts`
 
 ### NPM Package Structure
+
 ```json
 {
-  "name": "sqlite-wasm-easy",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": "./dist/index.js",
-    "./worker": "./dist/worker/sqliteWorker.js"
-  }
+	"name": "sqlite-wasm-easy",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": "./dist/index.js",
+		"./worker": "./dist/worker/sqliteWorker.js"
+	}
 }
 ```
 
 ## Next Steps
 
 ### For Development
+
 ```bash
 cd sqlite-wasm-easy
 npm install
@@ -227,10 +232,12 @@ npm run typecheck    # Type checking only
 ```
 
 ### For Testing
+
 1. Open `examples/basic.html` in a browser (via dev server)
 2. Open `examples/typed-schema.html` for TypeScript examples
 
 ### For Publishing
+
 ```bash
 # Test locally first
 npm pack
@@ -253,14 +260,16 @@ npm publish
 
 ✅ Chrome/Edge 102+  
 ✅ Firefox (with OPFS support)  
-⚠️ Safari (experimental OPFS support)  
+⚠️ Safari (experimental OPFS support)
 
 ## Dependencies
 
 **Peer Dependencies:**
+
 - `@sqlite.org/sqlite-wasm`: ^3.49.0
 
 **Dev Dependencies:**
+
 - `typescript`: ^5.7.3
 - `vite`: ^6.1.0
 

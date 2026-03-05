@@ -1,7 +1,7 @@
 /**
  * VFS (Virtual File System) type options
  */
-export type VFSType = 'opfs-sahpool' | 'opfs' | 'memdb';
+export type VFSType = 'opfs-sahpool' | 'opfs' | 'memory';
 
 /**
  * PRAGMA journal_mode options
